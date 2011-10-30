@@ -10,25 +10,9 @@
   </head>
   <body>
     <div class='container-fluid'>
-      <h6>Cartog &mdash; a simple level editor</h6>
+      <h4>Cartog &mdash; a simple level editor</h4>
       <div id='settings' class='sidebar'>
-        <div class='clearfix'>
-          <ul id='layer_list' class='unstyled'>
-            <li><a href='#' class="label success span3">Background</a></li>
-          </ul>
-        </div>
-        <form class='form-stacked'>
-          <fieldset>
-            <div class="clearfix">
-              <div class="input">
-                <input name='layer_name' class='span3' id='layer_name' type="text" placeholder='Layer name' />
-              </div>
-            </div>
-          </fieldset>
-          <div class="actions">
-            <a href='#add_layer' id='add_layer' type="submit" class="btn small">Add Layer</a>
-          </div>
-        </form>
+        <h6>Settings</h6>
         <form class='form-stacked'>
           <fieldset>
             <div class="clearfix">
@@ -81,7 +65,7 @@
             <p>You have unsaved changes.</p>
           </div>
           <div class="actions">
-            <a href='#save' id="save" type="submit" class="btn primary">Save</a>&nbsp;<a href='#saveas' type="reset" class="btn">Save As</a>
+            <a href='#' id="save" type="submit" class="btn primary">Save</a>&nbsp;<a href='#' type="reset" class="btn">Save As</a>
           </div>
         </form>
         <form class='form-stacked'>
@@ -92,7 +76,7 @@
               </div>
             </div>
             <div class="actions">
-              <a href='#open' id="open" type="submit" class="btn">Open</a>
+              <a href='#' id="open" type="submit" class="btn">Open</a>
             </div>
           </fieldset>
         </form>
@@ -100,6 +84,41 @@
       <div class='content'>
         <section id="map">
         </section>
+      </div>
+      <div id='tools'>
+        <h6>Tools</h6>
+        <div class='clearfix'>
+          <ul id='layer_list' class='unstyled'>
+            <li><a href='#' class="label success span3">Background</a></li>
+          </ul>
+        </div>
+        <form class='form-stacked'>
+          <fieldset>
+            <div class="clearfix">
+              <div class="input">
+                <input name='layer_name' class='span3' id='layer_name' type="text" placeholder='Layer name' />
+              </div>
+            </div>
+          </fieldset>
+          <div class="actions">
+            <a href='#' id='add_layer' type="submit" class="btn small">Add Layer</a>
+          </div>
+        </form>
+        <form class='form-stacked'>
+          <fieldset>
+            <div class="clearfix">
+            <div class="input">
+              <div class="input-prepend">
+                <span class="add-on">#</span>
+                <input class="small" id="color_value" name="prependedInput" size="6" type="text">
+              </div>
+            </div>
+          </div>
+          </fieldset>
+          <div class="actions">
+            <a href='#' id='add_color' type="submit" class="btn small">Add Color</a>
+          </div>
+        </form>
       </div>
     </div>
     <script src="cartog.js"></script>

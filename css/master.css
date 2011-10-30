@@ -6,3 +6,23 @@ body {
 ul li a {
   margin-bottom: 10px;
 }
+
+.content {
+  width: 500px;
+}
+
+#tools {
+  position: absolute;
+  /* left: 660px;*/
+  width: 220px;
+}
+
+.form-stacked, .span  {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+ul#layer_list [class*="span"] {
+  margin-left: 0;
+  padding-left: 10px;
+}
