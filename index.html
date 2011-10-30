@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cartog</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="css/master.css" type="text/css" media="screen" charset="utf-8">
+    <script src="lib/mootools.js"></script>
+    <script src="lib/move.js"></script>
+    <script src="lib/uilayer.js"></script>
+  </head>
+  <body>
+    <div class='container-fluid'>
+      <h6>Cartog &mdash; a simple level editor</h6>
+      <div id='settings' class='sidebar'>
+        <div class="clearfix">
+          <ul class='unstyled'>
+            <li><span class="label success span3">Layer 1</span></li>
+          </ul>
+        </div>
+        <form class='form-stacked'>
+          <fieldset>
+            <div class="clearfix">
+              <div class="input">
+                <input name='layer_name' class='span3' id='layer_name' type="text" placeholder='layer name' />
+              </div>
+            </div>
+          </fieldset>
+          <div class="actions">
+            <button id='add_layer' type="submit" class="btn small primary">Add Layer</button>
+          </div>
+        </form>
+        <form class='form-stacked'>
+          <fieldset>
+            <div class="clearfix">
+              <label for="width">Width:</label>
+              <div class="input">
+                <input name='width' class='span3 settings' id='width' type="text" placeholder='320' />
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="height">Height:</label>
+              <div class="input">
+                <input name='height' class='span3 settings' id='height' type="text" placeholder='480' />
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="rows">Rows:</label>
+              <div class="input">
+                <input name='rows' class='span3 settings' id='rows' type="text" placeholder='12' />
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="columns">Columns:</label>
+              <div class="input">
+                <input name='columns' class='span3 settings' id='columns' type="text" placeholder='8' />
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="tilesize">Tile size:</label>
+              <div class="input">
+                <input name='tilesize' class='span3 settings' id='tilesize' type="text" placeholder='40' />
+              </div>
+            </div>
+            <div class="clearfix">
+            <label for="format">Format:</label>
+            <div class="input">
+              <select class='span3' name="format" id="stackedSelect">
+                <option>.plist</option>
+                <option>.json</option>
+              </select>
+            </div>
+          </div>
+          </fieldset>
+          <div class="actions">
+            <button type="submit" class="btn primary">Export</button>&nbsp;<button type="reset" class="btn">Reset</button>
+          </div>
+        </form>
+      </div>
+      <div class='content'>
+        <section id="map">
+        </section>
+      </div>
+    </div>
+    <script src="cartog.js"></script>
+  </body>
+</html>
