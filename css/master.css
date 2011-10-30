@@ -22,7 +22,7 @@ ul li a {
   padding-left: 0;
 }
 
-ul#layer_list [class*="span"] {
+#layer_list [class*="span"] {
   margin-left: 0;
   padding-left: 10px;
 }

@@ -8,7 +8,8 @@ var Cartog = new Class({
     this.height = 480;
     this.rows = 12;
     this.columns = 8;
-    this.tilesize = this.width / this.columns;
+    this.tileWidth = this.width / this.columns;
+    this.tileHeight = this.height / this.rows;
     this.colors = ['#F7D688', '#923F3F'];
     this.selectedColor = this.colors[0];
     this.layers = [];
@@ -22,7 +23,7 @@ var Cartog = new Class({
       x:this.x,
       y:this.map.frame.y + this.map.frame.height + 20,
       width:this.width,
-      height:this.tilesize,
+      height:this.tileHeight,
       backgroundColor:'#eee'
     });
     this.addLayer('background');
@@ -49,10 +50,10 @@ var Cartog = new Class({
     for (var x = 0; x < this.columns; x++) {
       for (var y = 0; y < this.rows; y++) {
         var tile = UILayer({
-          x: (x * this.tilesize),
-          y: (y * this.tilesize),
-          width: this.tilesize,
-          height: this.tilesize,
+          x: (x * this.tileWidth),
+          y: (y * this.tileHeight),
+          width: this.tileWidth,
+          height: this.tileHeight,
         });
         if (this.layers.length == 0) {
           tile.backgroundColor = '#FFF4D9';
@@ -126,8 +127,8 @@ var Cartog = new Class({
     Array.each(layer.sublayers, function(tile) {
       if (self.colors.contains(tile.tag)) {
         tiles.append([{
-          x:tile.frame.x / self.tilesize,
-          y:tile.frame.y / self.tilesize
+          x:tile.frame.x / self.tileWidth,
+          y:tile.frame.y / self.tileHeight
         }]);
       };
     });

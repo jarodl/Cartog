@@ -46,20 +46,14 @@
               </div>
             </div>
             <div class="clearfix">
-              <label for="tilesize">Tile size:</label>
+              <label for="format">Format:</label>
               <div class="input">
-                <input name='tilesize' class='span3 settings' id='tilesize' type="text" placeholder='40' />
+                <select class='span3' name="format" id="stackedSelect">
+                  <option>.json</option>
+                  <option>.plist</option>
+                </select>
               </div>
             </div>
-            <div class="clearfix">
-            <label for="format">Format:</label>
-            <div class="input">
-              <select class='span3' name="format" id="stackedSelect">
-                <option>.json</option>
-                <option>.plist</option>
-              </select>
-            </div>
-          </div>
           </fieldset>
           <div id='save_state' class="alert-message warning">
             <p>You have unsaved changes.</p>
