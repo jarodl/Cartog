@@ -26,3 +26,8 @@ ul#layer_list [class*="span"] {
   margin-left: 0;
   padding-left: 10px;
 }
+
+a:hover {
+  color: #ccc;
+  text-decoration: none;
+}

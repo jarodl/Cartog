@@ -25,15 +25,17 @@ var Cartog = new Class({
       height:this.tilesize,
       backgroundColor:'#eee'
     });
-    this.addLayer();
+    this.addLayer('background');
     this.drawPalette();
   },
-  addLayer: function() {
+  addLayer: function(name) {
     var layer = UILayer({
       x: 0,
       y: 0,
       width: this.width,
       height: this.height,
+      tag: name,
+      zPosition: 1,
     });
     if (this.layers.length != 0) {
       layer.opacity = 0.5;
@@ -133,8 +135,16 @@ var Cartog = new Class({
   },
   addColor: function(color) {
     var self = this;
-    self.colors.append(['#' + color]);
+    self.colors.append([color]);
     self.drawPalette();
+  },
+  bringLayerToFront: function(layer_name) {
+    var self = this;
+    Array.each(self.map.sublayers, function(layer) {
+      layer.zPosition = 0;
+    });
+    var layer = self.map.layerWithTag(layer_name);
+    layer.zPosition = 1;
   },
 });
 
@@ -142,6 +152,19 @@ var sidebar_width = $('map').getCoordinates()['left'];
 var align_to_form = $('settings').getElement('h6').getCoordinates()['bottom'];
 var cartog = new Cartog(sidebar_width, align_to_form);
 cartog.attach($('map'));
+
+var bindLayerButtons = function() {
+  Array.each($('layer_list').getChildren(), function(elem) {
+    elem.getElement('a').addEvent('click', function() {
+      Array.each(elem.getSiblings(), function(sib) {
+        sib.getElement('a').removeClass('success');
+      });
+      this.addClass('success');
+      cartog.bringLayerToFront(this.text.toLowerCase());
+    });
+  });
+};
+
 $('add_layer').addEvent('click', function() {
   if ($('layer_name').value !== "") {
     Array.each($('layer_list').getChildren('li'), function(elem) {
@@ -151,8 +174,9 @@ $('add_layer').addEvent('click', function() {
     new_layer.getElement('a').addClass('success');
     new_layer.getElement('a').set('text', $('layer_name').value);
     new_layer.injectBefore($('layer_list').getFirst('li'));
+    cartog.addLayer($('layer_name').value.toLowerCase());
     $('layer_name').value = '';
-    cartog.addLayer();
+    bindLayerButtons();
   };
 });
 
@@ -165,7 +189,7 @@ $('save').addEvent('click', function() {
 
 $('add_color').addEvent('click', function() {
   if ($('color_value').value !== '') {
-    cartog.addColor($('color_value').value);
+    cartog.addColor('#' + $('color_value').value);
     $('color_value').value = '';
   };
 });
@@ -173,14 +197,3 @@ $('add_color').addEvent('click', function() {
 $('map').setStyle('width', cartog.map.frame.width);
 $('tools').setStyle('left', $('map').getCoordinates()['right'] + 60 + 'px');
 
-// $('rows').set('value', 12);
-// $('columns').set('value', 8);
-// $('tilesize').set('value', 40);
-// $('width').set('value', 320);
-// $('height').set('value', 480);
-
-// var rows = parseInt($('rows').get('value'));
-// var columns = parseInt($('columns').get('value'));
-// var tilesize = parseInt($('tilesize').get('value'));
-// var width = parseInt($('width').get('value'));
-// var height = parseInt($('height').get('value'));
