@@ -2,3 +2,7 @@
 body {
   padding: 20px;
 }
+
+ul li {
+  margin-top: 20px;
+}

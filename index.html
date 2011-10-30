@@ -12,11 +12,9 @@
     <div class='container-fluid'>
       <h6>Cartog &mdash; a simple level editor</h6>
       <div id='settings' class='sidebar'>
-        <div class="clearfix">
-          <ul class='unstyled'>
-            <li><span class="label success span3">Layer 1</span></li>
-          </ul>
-        </div>
+        <ul id='layer_list' class='unstyled'>
+          <li><span class="label success span3">Layer 1</span></li>
+        </ul>
         <form class='form-stacked'>
           <fieldset>
             <div class="clearfix">
@@ -26,7 +24,7 @@
             </div>
           </fieldset>
           <div class="actions">
-            <button id='add_layer' type="submit" class="btn small primary">Add Layer</button>
+            <a href='#add_layer' id='add_layer' type="submit" class="btn small primary">Add Layer</a>
           </div>
         </form>
         <form class='form-stacked'>
