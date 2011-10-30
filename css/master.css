@@ -3,6 +3,6 @@ body {
   padding: 20px;
 }
 
-ul li {
-  margin-top: 20px;
+ul li a {
+  margin-bottom: 10px;
 }

@@ -12,23 +12,31 @@
     <div class='container-fluid'>
       <h6>Cartog &mdash; a simple level editor</h6>
       <div id='settings' class='sidebar'>
-        <ul id='layer_list' class='unstyled'>
-          <li><span class="label success span3">Layer 1</span></li>
-        </ul>
+        <div class='clearfix'>
+          <ul id='layer_list' class='unstyled'>
+            <li><a href='#' class="label success span3">Background</a></li>
+          </ul>
+        </div>
         <form class='form-stacked'>
           <fieldset>
             <div class="clearfix">
               <div class="input">
-                <input name='layer_name' class='span3' id='layer_name' type="text" placeholder='layer name' />
+                <input name='layer_name' class='span3' id='layer_name' type="text" placeholder='Layer name' />
               </div>
             </div>
           </fieldset>
           <div class="actions">
-            <a href='#add_layer' id='add_layer' type="submit" class="btn small primary">Add Layer</a>
+            <a href='#add_layer' id='add_layer' type="submit" class="btn small">Add Layer</a>
           </div>
         </form>
         <form class='form-stacked'>
           <fieldset>
+            <div class="clearfix">
+              <label for="name">Name:</label>
+              <div class="input">
+                <input name='name' class='span3 settings' id='name' type="text" placeholder='MyLevel' />
+              </div>
+            </div>
             <div class="clearfix">
               <label for="width">Width:</label>
               <div class="input">
@@ -63,15 +71,30 @@
             <label for="format">Format:</label>
             <div class="input">
               <select class='span3' name="format" id="stackedSelect">
-                <option>.plist</option>
                 <option>.json</option>
+                <option>.plist</option>
               </select>
             </div>
           </div>
           </fieldset>
-          <div class="actions">
-            <button type="submit" class="btn primary">Export</button>&nbsp;<button type="reset" class="btn">Reset</button>
+          <div id='save_state' class="alert-message warning">
+            <p>You have unsaved changes.</p>
           </div>
+          <div class="actions">
+            <a href='#save' id="save" type="submit" class="btn primary">Save</a>&nbsp;<a href='#saveas' type="reset" class="btn">Save As</a>
+          </div>
+        </form>
+        <form class='form-stacked'>
+          <fieldset>
+            <div class="clearfix">
+              <div class="input">
+                <input class="input-file span4" id="fileInput" name="fileInput" type="file">
+              </div>
+            </div>
+            <div class="actions">
+              <a href='#open' id="open" type="submit" class="btn">Open</a>
+            </div>
+          </fieldset>
         </form>
       </div>
       <div class='content'>

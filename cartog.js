@@ -1,5 +1,4 @@
 var UILayer = Move.require('UILayer');
-// UILayer.debug = true;
 
 var Cartog = new Class({
   initialize: function(x, y) {
@@ -10,7 +9,7 @@ var Cartog = new Class({
     this.rows = 12;
     this.columns = 8;
     this.tilesize = this.width / this.columns;
-    this.colors = ['#F7D688', '#923F3F', '#F78892'];
+    this.colors = ['#F7D688', '#923F3F'];
     this.selectedColor = this.colors[0];
     this.layers = [];
     this.map = UILayer({
@@ -58,7 +57,6 @@ var Cartog = new Class({
         };
         var self = this;
         tile.style.border = '1px solid #ccc';
-        var layerCount = this.layers.length;
         this.layers.getLast().addSublayer(tile);
       };
     };
@@ -71,7 +69,8 @@ var Cartog = new Class({
         y: 0,
         width: color_width,
         height: this.palette.frame.height,
-        backgroundColor: this.colors[i]
+        backgroundColor: this.colors[i],
+        tag: this.colors[i]
       });
       this.palette.addSublayer(color);
     };
@@ -85,31 +84,52 @@ var Cartog = new Class({
     this.selectedColor = color;
   },
   clearPaletteBorders: function() {
-    for(var i = 0; i < this.palette.sublayers.length; i++) {
-      var layer = this.palette.sublayers[i];
-      layer.style.border = 'none';
-    };
+    Array.each(this.palette.sublayers, function(color) {
+      color.style.border = 'none';
+    });
   },
   bindLayerEvents: function() {
     var self = this;
-    for (var i = 0; i < self.layers.getLast().sublayers.length; i++) {
-      var tile = self.layers.getLast().sublayers[i];
+    Array.each(self.layers.getLast().sublayers, function(tile) {
       tile.on('touchstart', function() {
         this.backgroundColor = self.selectedColor;
+        this.tag = self.selectedColor;
       });
-    };
+    });
   },
   bindPaletteEvents: function() {
     var self = this;
-    for (var i = 0; i < self.palette.sublayers.length; i++) {
-      var layer = self.palette.sublayers[i];
-      layer.on('touchstart', function() {
+    Array.each(self.palette.sublayers, function(color) {
+      color.on('touchstart', function() {
         self.clearPaletteBorders();
-        self.setSelectedColor(this.backgroundColor);
+        // Use the tag instead of background color so it is not converted to rgb format
+        self.setSelectedColor(this.tag);
         this.style.borderBottom = '3px solid #3DA9E8';
       });
-    };
-  }
+    });
+  },
+  coordinateDict: function() {
+    var self = this;
+    var dict = {};
+    Array.each(self.layers, function(layer, index) {
+      tiles = self.coordinatesForLayer(layer);
+      dict['Layer' + index] = tiles;
+    });
+    return dict;
+  },
+  coordinatesForLayer: function(layer) {
+    var self = this;
+    var tiles = [];
+    Array.each(layer.sublayers, function(tile) {
+      if (self.colors.contains(tile.tag)) {
+        tiles.append([{
+          x:tile.frame.x / self.tilesize,
+          y:tile.frame.y / self.tilesize
+        }]);
+      };
+    });
+    return tiles;
+  },
 });
 
 var sidebar_width = $('map').getCoordinates()['left'];
@@ -119,14 +139,22 @@ cartog.attach($('map'));
 $('add_layer').addEvent('click', function() {
   if ($('layer_name').value !== "") {
     Array.each($('layer_list').getChildren('li'), function(elem) {
-      elem.getElement('span').removeClass('success');
+      elem.getElement('a').removeClass('success');
     });
     var new_layer = $('layer_list').getLast('li').clone();
-    new_layer.getElement('span').addClass('success');
-    new_layer.getElement('span').set('text', $('layer_name').value);
+    new_layer.getElement('a').addClass('success');
+    new_layer.getElement('a').set('text', $('layer_name').value);
     new_layer.injectBefore($('layer_list').getFirst('li'));
+    $('layer_name').value = '';
     cartog.addLayer();
   };
+});
+
+$('save').addEvent('click', function() {
+  $('save_state').removeClass('warning');
+  $('save_state').addClass('success');
+  $('save_state').getElement('p').set('text', 'Saved!');
+  console.log(cartog.coordinateDict());
 });
 
 // $('rows').set('value', 12);
