@@ -189,13 +189,10 @@ var downloadFile = function() {
   var exportButton = $('export');
   exportButton.download = $('name').value + $('format').value;
   exportButton.href = window.URL.createObjectURL(bb.getBlob(MIME_TYPE));
-  // a.textContent = 'Download ready';
 
   exportButton.dataset.downloadurl = [MIME_TYPE, exportButton.download, exportButton.href].join(':');
   exportButton.draggable = true; // Don't really need, but good practice.
   exportButton.classList.add('dragout');
-
-  // output.appendChild(a);
 
   exportButton.onclick = function(e) {
     if ('disabled' in this.dataset) {
@@ -206,11 +203,30 @@ var downloadFile = function() {
   };
 };
 
+var openFile = function(evt) {
+  var files = evt.target.files;
+
+  Array.each(files, function(file) {
+    var reader = new FileReader();
+
+    reader.onload = (function(theFile) {
+        return function(e) {
+          $('name').value = theFile.name.replace('.json', '');
+          cartog.open(theFile, e.target.result);
+        };
+      })(file);
+      reader.readAsText(file);
+  });
+};
+
+$('fileInput').addEvent('change', openFile);
+
 $('save').addEvent('click', function() {
   $('save_state').removeClass('warning');
   $('save_state').addClass('success');
-  $('save_state').getElement('p').set('text', 'Saved!');
+  $('save_state').getElement('p').set('text', 'Saved! Ready to export.');
   downloadFile();
+  $('export').removeClass('disabled');
   // cartog.export();
 });
 
@@ -223,6 +239,6 @@ $('add_color').addEvent('click', function() {
 });
 
 $('map').setStyle('width', cartog.map.frame.width);
-$('tools').setStyle('left', $('map').getCoordinates()['right'] + 60 + 'px');
+$('tools').setStyle('left', $('map').getCoordinates()['right'] + 80 + 'px');
 updateColorList();
 

@@ -21,11 +21,19 @@ ul li a {
   padding-left: 0;
 }
 
-#brush_list [class*="span"],
-#layer_list [class*="span"],
-#color_list [class*="span"] {
+[class*="span"] {
   margin-left: 0;
   padding-left: 10px;
+}
+
+.form-stacked .actions {
+  padding-left: 20px;
+  margin-left: 0;
+  padding-right: 0px;
+}
+
+.alert-message {
+  padding-right: 0;
 }
 
 a:hover {
