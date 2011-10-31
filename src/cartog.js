@@ -2,6 +2,7 @@ var UILayer = Move.require('UILayer');
 
 var Cartog = new Class({
   initialize: function(x, y) {
+    this.name = 'MyLevel';
     this.x = x;
     this.y = y;
     this.width = 320;
@@ -12,7 +13,6 @@ var Cartog = new Class({
     this.tileHeight = this.height / this.rows;
     this.colors = ['#F7D688', '#923F3F'];
     this.selectedColor = this.colors[0];
-    this.layers = [];
     this.map = UILayer({
       x:this.x, 
       y:this.y,
@@ -30,11 +30,10 @@ var Cartog = new Class({
       tag: name,
       zPosition: 1,
     });
-    if (this.layers.length != 0) {
+    if (this.map.sublayers.length != 0) {
       layer.opacity = 0.5;
     };
     this.map.addSublayer(layer);
-    this.layers.append([layer]);
     this.addTiles();
     this.bindLayerEvents();
   },
@@ -47,12 +46,12 @@ var Cartog = new Class({
           width: this.tileWidth,
           height: this.tileHeight,
         });
-        if (this.layers.length == 0) {
+        if (this.map.sublayers.length == 0) {
           tile.backgroundColor = '#FFF4D9';
         };
         var self = this;
         tile.style.border = '1px solid #ccc';
-        this.layers.getLast().addSublayer(tile);
+        this.map.sublayers.getLast().addSublayer(tile);
       };
     };
   },
@@ -64,7 +63,7 @@ var Cartog = new Class({
   },
   bindLayerEvents: function() {
     var self = this;
-    Array.each(self.layers.getLast().sublayers, function(tile) {
+    Array.each(self.map.sublayers.getLast().sublayers, function(tile) {
       tile.on('touchstart', function() {
         this.backgroundColor = self.selectedColor;
         this.tag = self.selectedColor;
@@ -74,7 +73,13 @@ var Cartog = new Class({
   export: function() {
     var self = this;
     var dict = {};
-    Array.each(self.layers, function(layer, index) {
+    dict[this.name] = {
+      width: self.width,
+      height: self.height,
+      rows: self.rows,
+      columns: self.columns
+    }
+    Array.each(self.map.sublayers, function(layer, index) {
       tiles = self.coordinatesForLayer(layer);
       dict[layer.tag] = tiles;
     });
@@ -87,7 +92,8 @@ var Cartog = new Class({
       if (self.colors.contains(tile.tag)) {
         tiles.append([{
           x:tile.frame.x / self.tileWidth,
-          y:tile.frame.y / self.tileHeight
+          y:tile.frame.y / self.tileHeight,
+          color:tile.tag
         }]);
       };
     });
@@ -105,7 +111,7 @@ var Cartog = new Class({
     var layer = self.map.layerWithTag(layer_name);
     layer.zPosition = 1;
   },
-  open: function() {
+  open: function(file, contents) {
   }
 });
 
