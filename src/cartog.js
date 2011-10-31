@@ -143,167 +143,186 @@ var Cartog = new Class({
   }
 });
 
+var CartogUI = new Class({
+  initialize: function(cartogMap) {
+    this.cartogMap = cartogMap;
+    this.layerList = document.getElementById('layer_list');
+    this.colorList = document.getElementById('color_list');
+    this.addLayer = document.getElementById('add_layer');
+    this.layerName = document.getElementById('layer_name');
+    this.addColor = document.getElementById('add_color');
+    this.saveState = document.getElementById('save_state');
+    this.exportButton = document.getElementById('export');
+    this.fileInput = document.getElementById('fileInput');
+    this.saveButton = document.getElementById('save');
+    this.colorValue = document.getElementById('color_value');
+    this.name = document.getElementById('name');
+    this.mimeType = 'application/json';
+    this.format = $('format');
+    this.updateLayerList();
+    this.updateColorList();
+    this.bindLayerEvents();
+    this.bindLayerButtons();
+    this.bindFileEvents();
+    this.bindColorEvents();
+  },
+  addLayerToList: function(name) {
+    var exists = false;
+    Array.each(this.layerList.getChildren(), function(li) {
+      if (li.getElement('a').text.toLowerCase() === name) {
+        exists = true;
+      };
+    });
+    if (!exists) {
+      var new_layer = this.layerList.getLast('li').clone();
+      new_layer.getElement('a').addClass('success');
+      new_layer.getElement('a').set('text', name);
+      new_layer.injectBefore(this.layerList.getFirst('li'));
+    };
+  },
+  bindLayerButtons: function() {
+    var self = this;
+    Array.each(this.layerList.getChildren(), function(elem) {
+      elem.getElement('a').addEvent('click', function() {
+        Array.each(elem.getSiblings(), function(sib) {
+          sib.getElement('a').removeClass('success');
+        });
+        this.addClass('success');
+        self.cartogMap.bringLayerToFront(this.text.toLowerCase());
+      });
+    });
+  },
+  updateColorList: function() {
+    var self = this;
+    self.colorList.empty();
+    Array.each(this.cartogMap.colors, function(color) {
+      var elem = new Element('li');
+      var content = new Element('a', {
+        href: '#',
+        'class': 'label span3',
+        styles: {
+          backgroundColor: color
+        },
+      })
+      content.addEvent('click', function() {
+        self.cartogMap.setSelectedColor(color);
+      });
+      content.set('text', color);
+      content.inject(elem);
+      elem.inject(self.colorList);
+    });
+  },
+  setAllLayersInactive: function() {
+    Array.each(this.layerList.getChildren('li'), function(elem) {
+      elem.getElement('a').removeClass('success');
+    });
+  },
+  setLastLayerActive: function() {
+    this.layerList.getLast('li').addClass('success');
+  },
+  bindLayerEvents: function() {
+    var self = this;
+    self.addLayer.addEvent('click', function() {
+      if (self.layerName.value !== "") {
+        self.setAllLayersInactive();
+        self.cartogMap.addLayer(self.layerName.value.toLowerCase());
+        self.addLayerToList(self.layerName.value);
+        self.layerName.value = '';
+        self.bindLayerButtons();
+      };
+    });
+  },
+  cleanUpSave: function(a) {
+    a.dataset.disabled = true;
+
+    // Need a small delay for the revokeObjectURL to work properly.
+    setTimeout(function() {
+      window.URL.revokeObjectURL(a.href);
+    }, 1500);
+  },
+  downloadFile: function() {
+    var self = this;
+    window.URL = window.webkitURL || window.URL;
+    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+
+    // var prevLink = output.querySelector('a');
+    // if (prevLink) {
+    //   window.URL.revokeObjectURL(prevLink.href);
+    //   output.innerHTML = '';
+    // }
+
+    var bb = new BlobBuilder();
+    bb.append(this.cartogMap.export());
+
+    self.exportButton.download = self.name.value + self.format.value;
+    self.exportButton.href = window.URL.createObjectURL(bb.getBlob(self.mimeType));
+
+    self.exportButton.dataset.downloadurl = [self.mimeType, self.exportButton.download, self.exportButton.href].join(':');
+    self.exportButton.draggable = true;
+    self.exportButton.classList.add('dragout');
+
+    self.exportButton.onclick = function(e) {
+      if ('disabled' in this.dataset) {
+        return false;
+      }
+
+      self.cleanUpSave(this);
+    };
+  },
+  updateLayerList: function(layers) {
+    var self = this;
+    self.setAllLayersInactive();
+    Array.each(layers, function(layer) {
+      self.addLayerToList(layer.tag);
+    });
+    self.setLastLayerActive();
+    self.bindLayerButtons();
+  },
+  bindColorEvents: function() {
+    var self = this;
+    this.addColor.addEvent('click', function() {
+      if (self.colorValue.value !== '') {
+        self.cartogMap.addColor('#' + self.colorValue.value);
+        self.colorValue.value = '';
+        self.updateColorList();
+      };
+    });
+  },
+  bindFileEvents: function() {
+    var self = this;
+    self.saveButton.addEvent('click', function() {
+      self.saveState.removeClass('warning');
+      self.saveState.addClass('success');
+      self.saveState.getElement('p').set('text', 'Saved! Ready to export.');
+      self.downloadFile();
+      self.exportButton.removeClass('disabled');
+    });
+
+    self.fileInput.addEvent('change', function(evt) {
+      var files = evt.target.files;
+
+      Array.each(files, function(file) {
+        var reader = new FileReader();
+
+        reader.onload = (function(theFile) {
+            return function(e) {
+              self.name.value = theFile.name.replace('.json', '');
+              self.cartogMap.open(theFile, e.target.result);
+              self.updateColorList();
+              self.updateLayerList();
+            };
+          })(file);
+          reader.readAsText(file);
+      });
+    });
+  },
+});
+
 var sidebar_width = $('map').getCoordinates()['left'];
 var align_to_form = $('settings').getElement('h6').getCoordinates()['bottom'];
 var cartog = new Cartog(sidebar_width, align_to_form);
 cartog.attach($('map'));
-
-var bindLayerButtons = function() {
-  Array.each($('layer_list').getChildren(), function(elem) {
-    elem.getElement('a').addEvent('click', function() {
-      Array.each(elem.getSiblings(), function(sib) {
-        sib.getElement('a').removeClass('success');
-      });
-      this.addClass('success');
-      cartog.bringLayerToFront(this.text.toLowerCase());
-    });
-  });
-};
-
-var updateColorList = function() {
-  var color_list = $('color_list');
-  color_list.empty();
-  Array.each(cartog.colors, function(color) {
-    var elem = new Element('li');
-    var content = new Element('a', {
-      href: '#',
-      'class': 'label span3',
-      styles: {
-        backgroundColor: color
-      },
-    })
-    content.addEvent('click', function() {
-      cartog.setSelectedColor(color);
-    });
-    content.set('text', color);
-    content.inject(elem);
-    elem.inject(color_list);
-  });
-};
-
-var addLayerToList = function(name) {
-  var exists = false;
-  Array.each($('layer_list').getChildren(), function(li) {
-    if (li.getElement('a').text.toLowerCase() === name) {
-      exists = true;
-    };
-  });
-  if (!exists) {
-    var new_layer = $('layer_list').getLast('li').clone();
-    new_layer.getElement('a').addClass('success');
-    new_layer.getElement('a').set('text', name);
-    new_layer.injectBefore($('layer_list').getFirst('li'));
-  };
-};
-
-var setAllLayersInactive = function() {
-  Array.each($('layer_list').getChildren('li'), function(elem) {
-    elem.getElement('a').removeClass('success');
-  });
-};
-
-var setLastLayerActive = function() {
-  $('layer_list').getLast('li').addClass('success');
-};
-
-$('add_layer').addEvent('click', function() {
-  if ($('layer_name').value !== "") {
-    setAllLayersInactive();
-    cartog.addLayer($('layer_name').value.toLowerCase());
-    addLayerToList($('layer_name').value);
-    $('layer_name').value = '';
-    bindLayerButtons();
-  };
-});
-
-MIME_TYPE = 'application/json';
-
-var cleanUp = function(a) {
-  a.dataset.disabled = true;
-
-  // Need a small delay for the revokeObjectURL to work properly.
-  setTimeout(function() {
-    window.URL.revokeObjectURL(a.href);
-  }, 1500);
-};
-
-var downloadFile = function() {
-  window.URL = window.webkitURL || window.URL;
-  window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
-
-  // var prevLink = output.querySelector('a');
-  // if (prevLink) {
-  //   window.URL.revokeObjectURL(prevLink.href);
-  //   output.innerHTML = '';
-  // }
-
-  var bb = new BlobBuilder();
-  bb.append(cartog.export());
-
-  var exportButton = $('export');
-  exportButton.download = $('name').value + $('format').value;
-  exportButton.href = window.URL.createObjectURL(bb.getBlob(MIME_TYPE));
-
-  exportButton.dataset.downloadurl = [MIME_TYPE, exportButton.download, exportButton.href].join(':');
-  exportButton.draggable = true; // Don't really need, but good practice.
-  exportButton.classList.add('dragout');
-
-  exportButton.onclick = function(e) {
-    if ('disabled' in this.dataset) {
-      return false;
-    }
-
-    cleanUp(this);
-  };
-};
-
-
-$('save').addEvent('click', function() {
-  $('save_state').removeClass('warning');
-  $('save_state').addClass('success');
-  $('save_state').getElement('p').set('text', 'Saved! Ready to export.');
-  downloadFile();
-  $('export').removeClass('disabled');
-  // cartog.export();
-});
-
-$('add_color').addEvent('click', function() {
-  if ($('color_value').value !== '') {
-    cartog.addColor('#' + $('color_value').value);
-    $('color_value').value = '';
-    updateColorList();
-  };
-});
+var cartogUI = new CartogUI(cartog);
 
 $('map').setStyle('width', cartog.map.frame.width);
 $('tools').setStyle('left', $('map').getCoordinates()['right'] + 80 + 'px');
-updateColorList();
-
-var updateLayerList = function() {
-  Array.each(cartog.map.sublayers, function(layer) {
-    setAllLayersInactive();
-    addLayerToList(layer.tag);
-    setLastLayerActive();
-    bindLayerButtons();
-  });
-};
-
-var openFile = function(evt) {
-  var files = evt.target.files;
-
-  Array.each(files, function(file) {
-    var reader = new FileReader();
-
-    reader.onload = (function(theFile) {
-        return function(e) {
-          $('name').value = theFile.name.replace('.json', '');
-          cartog.open(theFile, e.target.result);
-          updateColorList();
-          updateLayerList();
-        };
-      })(file);
-      reader.readAsText(file);
-  });
-};
-
-$('fileInput').addEvent('change', openFile);
