@@ -268,14 +268,15 @@ var CartogUI = new Class({
       self.cleanUpSave(this);
     };
   },
-  updateLayerList: function(layers) {
+  updateLayerList: function() {
     var self = this;
     self.setAllLayersInactive();
-    Array.each(layers, function(layer) {
+    Array.each(self.cartogMap.map.sublayers, function(layer) {
       self.addLayerToList(layer.tag);
     });
     self.setLastLayerActive();
     self.bindLayerButtons();
+    self.bindLayerEvents();
   },
   bindColorEvents: function() {
     var self = this;
