@@ -3,6 +3,8 @@ Cartog
 
 A simple level editor.
 
+![preview](http://jarodlrandom.s3.amazonaws.com/cartog_preview.png)
+
 ## Layers
 
 Layers should be used for separate environment elements (water on
