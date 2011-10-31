@@ -21,7 +21,9 @@ ul li a {
   padding-left: 0;
 }
 
-#layer_list [class*="span"], #color_list [class*="span"] {
+#brush_list [class*="span"],
+#layer_list [class*="span"],
+#color_list [class*="span"] {
   margin-left: 0;
   padding-left: 10px;
 }
@@ -29,4 +31,9 @@ ul li a {
 a:hover {
   color: #ccc;
   text-decoration: none;
+}
+
+.footer {
+  padding-left: 20px;
+  margin-top: 50px;
 }

@@ -71,14 +71,14 @@ var Cartog = new Class({
       });
     });
   },
-  coordinateDict: function() {
+  export: function() {
     var self = this;
     var dict = {};
     Array.each(self.layers, function(layer, index) {
       tiles = self.coordinatesForLayer(layer);
       dict[layer.tag] = tiles;
     });
-    return dict;
+    return JSON.stringify(dict);
   },
   coordinatesForLayer: function(layer) {
     var self = this;
@@ -105,9 +105,8 @@ var Cartog = new Class({
     var layer = self.map.layerWithTag(layer_name);
     layer.zPosition = 1;
   },
-  export: function() {
-    document.location.href = "data:application/json;base64";
-  },
+  open: function() {
+  }
 });
 
 var sidebar_width = $('map').getCoordinates()['left'];
@@ -163,11 +162,56 @@ $('add_layer').addEvent('click', function() {
   };
 });
 
+MIME_TYPE = 'application/json';
+
+var cleanUp = function(a) {
+  a.dataset.disabled = true;
+
+  // Need a small delay for the revokeObjectURL to work properly.
+  setTimeout(function() {
+    window.URL.revokeObjectURL(a.href);
+  }, 1500);
+};
+
+var downloadFile = function() {
+  window.URL = window.webkitURL || window.URL;
+  window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+
+  // var prevLink = output.querySelector('a');
+  // if (prevLink) {
+  //   window.URL.revokeObjectURL(prevLink.href);
+  //   output.innerHTML = '';
+  // }
+
+  var bb = new BlobBuilder();
+  bb.append(cartog.export());
+
+  var exportButton = $('export');
+  exportButton.download = $('name').value + $('format').value;
+  exportButton.href = window.URL.createObjectURL(bb.getBlob(MIME_TYPE));
+  // a.textContent = 'Download ready';
+
+  exportButton.dataset.downloadurl = [MIME_TYPE, exportButton.download, exportButton.href].join(':');
+  exportButton.draggable = true; // Don't really need, but good practice.
+  exportButton.classList.add('dragout');
+
+  // output.appendChild(a);
+
+  exportButton.onclick = function(e) {
+    if ('disabled' in this.dataset) {
+      return false;
+    }
+
+    cleanUp(this);
+  };
+};
+
 $('save').addEvent('click', function() {
   $('save_state').removeClass('warning');
   $('save_state').addClass('success');
   $('save_state').getElement('p').set('text', 'Saved!');
-  cartog.export();
+  downloadFile();
+  // cartog.export();
 });
 
 $('add_color').addEvent('click', function() {

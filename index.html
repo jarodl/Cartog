@@ -90,6 +90,11 @@
           </div>
         </form>
         <div class='clearfix'>
+          <ul id='brush_list' class='unstyled'>
+            <li><a href='#' class='label span3' id='eraser'>Eraser</a></li>
+          </ul>
+        </div>
+        <div class='clearfix'>
           <ul id='color_list' class='unstyled'>
           </ul>
         </div>
@@ -113,7 +118,7 @@
           <fieldset>
             <div class="clearfix">
               <div class="input">
-                <select class='span3' name="format" id="stackedSelect">
+                <select class='span3' name="format" id="format">
                   <option>.json</option>
                   <option>.plist</option>
                 </select>
@@ -126,6 +131,9 @@
         </form>
       </div>
     </div>
-    <script src="cartog.js"></script>
+    <div class='footer'>
+      <p>documentation and source on <a href="http://github.com/jarodl/cartog">github</a></p>
+    </div>
+    <script src="src/cartog.js"></script>
   </body>
 </html>
