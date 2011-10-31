@@ -21,6 +21,10 @@ var Cartog = new Class({
     });
     this.addLayer('background');
   },
+  updateTileSize: function() {
+    this.tileWidth = this.width / this.columns;
+    this.tileHeight = this.height / this.rows;
+  },
   addLayer: function(name) {
     var layer = UILayer({
       x: 0,
@@ -73,7 +77,7 @@ var Cartog = new Class({
   export: function() {
     var self = this;
     var dict = {};
-    dict[this.name] = {
+    dict["attributes"] = {
       width: self.width,
       height: self.height,
       rows: self.rows,
@@ -112,6 +116,30 @@ var Cartog = new Class({
     layer.zPosition = 1;
   },
   open: function(file, contents) {
+    var self = this;
+    self.name = file.name;
+    var dict = JSON.parse(contents);
+    console.log(dict);
+    var attr = dict["attributes"];
+    delete dict["attributes"];
+    self.width = attr["width"];
+    self.height = attr["height"];
+    self.columns = attr["columns"];
+    self.rows = attr["rows"];
+    self.map.removeAllSublayers();
+    self.map.frame.width = self.width;
+    self.map.frame.height = self.height;
+    self.updateTileSize();
+    for (var key in dict) {
+      self.addLayer(key);
+      Array.each(dict[key], function(tile) {
+        self.selectedColor = tile.color;
+        var index = (self.rows * tile.x) + tile.y;
+        var newTile = self.map.layerWithTag(key).sublayers[index];
+        newTile.backgroundColor = tile.color;
+        newTile.tag = tile.color;
+      });
+    };
   }
 });
 
@@ -153,16 +181,36 @@ var updateColorList = function() {
   });
 };
 
-$('add_layer').addEvent('click', function() {
-  if ($('layer_name').value !== "") {
-    Array.each($('layer_list').getChildren('li'), function(elem) {
-      elem.getElement('a').removeClass('success');
-    });
+var addLayerToList = function(name) {
+  var exists = false;
+  Array.each($('layer_list').getChildren(), function(li) {
+    if (li.getElement('a').text.toLowerCase() === name) {
+      exists = true;
+    };
+  });
+  if (!exists) {
     var new_layer = $('layer_list').getLast('li').clone();
     new_layer.getElement('a').addClass('success');
-    new_layer.getElement('a').set('text', $('layer_name').value);
+    new_layer.getElement('a').set('text', name);
     new_layer.injectBefore($('layer_list').getFirst('li'));
+  };
+};
+
+var setAllLayersInactive = function() {
+  Array.each($('layer_list').getChildren('li'), function(elem) {
+    elem.getElement('a').removeClass('success');
+  });
+};
+
+var setLastLayerActive = function() {
+  $('layer_list').getLast('li').addClass('success');
+};
+
+$('add_layer').addEvent('click', function() {
+  if ($('layer_name').value !== "") {
+    setAllLayersInactive();
     cartog.addLayer($('layer_name').value.toLowerCase());
+    addLayerToList($('layer_name').value);
     $('layer_name').value = '';
     bindLayerButtons();
   };
@@ -209,23 +257,6 @@ var downloadFile = function() {
   };
 };
 
-var openFile = function(evt) {
-  var files = evt.target.files;
-
-  Array.each(files, function(file) {
-    var reader = new FileReader();
-
-    reader.onload = (function(theFile) {
-        return function(e) {
-          $('name').value = theFile.name.replace('.json', '');
-          cartog.open(theFile, e.target.result);
-        };
-      })(file);
-      reader.readAsText(file);
-  });
-};
-
-$('fileInput').addEvent('change', openFile);
 
 $('save').addEvent('click', function() {
   $('save_state').removeClass('warning');
@@ -248,3 +279,31 @@ $('map').setStyle('width', cartog.map.frame.width);
 $('tools').setStyle('left', $('map').getCoordinates()['right'] + 80 + 'px');
 updateColorList();
 
+var updateLayerList = function() {
+  Array.each(cartog.map.sublayers, function(layer) {
+    setAllLayersInactive();
+    addLayerToList(layer.tag);
+    setLastLayerActive();
+    bindLayerButtons();
+  });
+};
+
+var openFile = function(evt) {
+  var files = evt.target.files;
+
+  Array.each(files, function(file) {
+    var reader = new FileReader();
+
+    reader.onload = (function(theFile) {
+        return function(e) {
+          $('name').value = theFile.name.replace('.json', '');
+          cartog.open(theFile, e.target.result);
+          updateColorList();
+          updateLayerList();
+        };
+      })(file);
+      reader.readAsText(file);
+  });
+};
+
+$('fileInput').addEvent('change', openFile);
