@@ -19,15 +19,7 @@ var Cartog = new Class({
       width:this.width,
       height:this.height,
     });
-    this.palette = UILayer({
-      x:this.x,
-      y:this.map.frame.y + this.map.frame.height + 20,
-      width:this.width,
-      height:this.tileHeight,
-      backgroundColor:'#eee'
-    });
     this.addLayer('background');
-    this.drawPalette();
   },
   addLayer: function(name) {
     var layer = UILayer({
@@ -64,33 +56,11 @@ var Cartog = new Class({
       };
     };
   },
-  drawPalette: function() {
-    this.palette.removeAllSublayers();
-    var color_width = this.palette.frame.width / this.colors.length;
-    for (var i = 0; i < this.colors.length; i++) {
-      var color = UILayer({
-        x: i * color_width,
-        y: 0,
-        width: color_width,
-        height: this.palette.frame.height,
-        backgroundColor: this.colors[i],
-        tag: this.colors[i]
-      });
-      this.palette.addSublayer(color);
-    };
-    this.bindPaletteEvents();
-  },
   attach: function(elem) {
     elem.grab(this.map.element);
-    elem.grab(this.palette.element);
   },
   setSelectedColor: function(color) {
     this.selectedColor = color;
-  },
-  clearPaletteBorders: function() {
-    Array.each(this.palette.sublayers, function(color) {
-      color.style.border = 'none';
-    });
   },
   bindLayerEvents: function() {
     var self = this;
@@ -101,23 +71,12 @@ var Cartog = new Class({
       });
     });
   },
-  bindPaletteEvents: function() {
-    var self = this;
-    Array.each(self.palette.sublayers, function(color) {
-      color.on('touchstart', function() {
-        self.clearPaletteBorders();
-        // Use the tag instead of background color so it is not converted to rgb format
-        self.setSelectedColor(this.tag);
-        this.style.borderBottom = '3px solid #3DA9E8';
-      });
-    });
-  },
   coordinateDict: function() {
     var self = this;
     var dict = {};
     Array.each(self.layers, function(layer, index) {
       tiles = self.coordinatesForLayer(layer);
-      dict['Layer' + index] = tiles;
+      dict[layer.tag] = tiles;
     });
     return dict;
   },
@@ -137,7 +96,6 @@ var Cartog = new Class({
   addColor: function(color) {
     var self = this;
     self.colors.append([color]);
-    self.drawPalette();
   },
   bringLayerToFront: function(layer_name) {
     var self = this;
@@ -146,6 +104,9 @@ var Cartog = new Class({
     });
     var layer = self.map.layerWithTag(layer_name);
     layer.zPosition = 1;
+  },
+  export: function() {
+    document.location.href = "data:application/json;base64";
   },
 });
 
@@ -163,6 +124,27 @@ var bindLayerButtons = function() {
       this.addClass('success');
       cartog.bringLayerToFront(this.text.toLowerCase());
     });
+  });
+};
+
+var updateColorList = function() {
+  var color_list = $('color_list');
+  color_list.empty();
+  Array.each(cartog.colors, function(color) {
+    var elem = new Element('li');
+    var content = new Element('a', {
+      href: '#',
+      'class': 'label span3',
+      styles: {
+        backgroundColor: color
+      },
+    })
+    content.addEvent('click', function() {
+      cartog.setSelectedColor(color);
+    });
+    content.set('text', color);
+    content.inject(elem);
+    elem.inject(color_list);
   });
 };
 
@@ -185,16 +167,18 @@ $('save').addEvent('click', function() {
   $('save_state').removeClass('warning');
   $('save_state').addClass('success');
   $('save_state').getElement('p').set('text', 'Saved!');
-  console.log(cartog.coordinateDict());
+  cartog.export();
 });
 
 $('add_color').addEvent('click', function() {
   if ($('color_value').value !== '') {
     cartog.addColor('#' + $('color_value').value);
     $('color_value').value = '';
+    updateColorList();
   };
 });
 
 $('map').setStyle('width', cartog.map.frame.width);
 $('tools').setStyle('left', $('map').getCoordinates()['right'] + 60 + 'px');
+updateColorList();
 

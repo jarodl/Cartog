@@ -45,21 +45,12 @@
                 <input name='columns' class='span3 settings' id='columns' type="text" placeholder='8' />
               </div>
             </div>
-            <div class="clearfix">
-              <label for="format">Format:</label>
-              <div class="input">
-                <select class='span3' name="format" id="stackedSelect">
-                  <option>.json</option>
-                  <option>.plist</option>
-                </select>
-              </div>
-            </div>
           </fieldset>
           <div id='save_state' class="alert-message warning">
             <p>You have unsaved changes.</p>
           </div>
           <div class="actions">
-            <a href='#' id="save" type="submit" class="btn primary">Save</a>&nbsp;<a href='#' type="reset" class="btn">Save As</a>
+            <a href='#' id="save" type="submit" class="btn primary">Save</a>
           </div>
         </form>
         <form class='form-stacked'>
@@ -98,6 +89,10 @@
             <a href='#' id='add_layer' type="submit" class="btn small">Add Layer</a>
           </div>
         </form>
+        <div class='clearfix'>
+          <ul id='color_list' class='unstyled'>
+          </ul>
+        </div>
         <form class='form-stacked'>
           <fieldset>
             <div class="clearfix">
@@ -111,6 +106,22 @@
           </fieldset>
           <div class="actions">
             <a href='#' id='add_color' type="submit" class="btn small">Add Color</a>
+          </div>
+        </form>
+        <form class='form-stacked'>
+          <legend>Export</legend>
+          <fieldset>
+            <div class="clearfix">
+              <div class="input">
+                <select class='span3' name="format" id="stackedSelect">
+                  <option>.json</option>
+                  <option>.plist</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+          <div class="actions">
+            <a href='#' id="export" type="submit" class="btn primary">Export</a>
           </div>
         </form>
       </div>
