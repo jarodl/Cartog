@@ -119,7 +119,6 @@ var Cartog = new Class({
     var self = this;
     self.name = file.name;
     var dict = JSON.parse(contents);
-    console.log(dict);
     var attr = dict["attributes"];
     delete dict["attributes"];
     self.width = attr["width"];
